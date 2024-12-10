@@ -1,0 +1,23 @@
+﻿@model IEnumerable<Shop11A.Models.Product>
+
+<h1 class="text-center">Our products</h1>
+
+<div class="row">
+	@foreach (var product in Model)
+	{
+		<div class="col-md-4">
+			<div class="card mb-4 shadow-sm">
+				<div class="card-body">
+					<h5 class="card-title">@product.Name</h5>
+					<p class="card-text">@product.Description</p>
+					<div class="d-flex justify-content-between align-items-center">
+						<span>@product.Price</span>
+						<button type="button" class="btn btn-lg btn-outline-secondary">Add to cart</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+</div>
+
