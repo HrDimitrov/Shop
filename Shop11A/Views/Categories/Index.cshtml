@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Shop11A.Models.Category>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<div class="row col-md-12">
+@foreach (var item in Model) {
+    <h1>@item.Name</h1>
+
+            @foreach (var product in item.Products)
+            {
+                var imgUrl = "http://localhost:5041" + @product.ImageUrl;
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <img src="@imgUrl" alt="@product.Name" class="img-fluid img-thumbnail" />
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text">@product.Description</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>@product.Price BGN</span>
+                                <button type="button" class="btn btn-lg btn-outline-secondary">Add to cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+   
+}
+  
+</div>
