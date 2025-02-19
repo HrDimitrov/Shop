@@ -1,4 +1,15 @@
+
+using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddMySqlDataSource(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+builder.Services.AddTransient<MySqlConnector.MySqlConnection>(_ => new MySqlConnector.MySqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
