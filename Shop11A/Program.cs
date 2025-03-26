@@ -5,7 +5,7 @@ using MySqlConnector;
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 builder.Services.AddMySqlDataSource(builder.Configuration.GetConnectionString("DefaultConnection"));
 
@@ -25,7 +25,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+
+
+app.UseAuthorization(); 
 
 app.MapControllerRoute(
     name: "default",

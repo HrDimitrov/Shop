@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
 using Shop11A.Models;
 
 
@@ -6,52 +7,97 @@ namespace Shop11A.Controllers
 {
     public class CategoriesController : Controller
     {
-
-        public IActionResult Index()
+        public async Task<List<Category>> Index()
         {
-            var categories = new List<Category>
-            {
+			var categories = new List<Category>();
 
-                new Category { Id = 1, Name = "Tablets", Products = new List<Product>
-                    {
-                        new Product{ Id = 1, Name = "Tablet PGMT 11a", Description = "Super mega giga tablet PGMT 11a", Price = 2000.11M, ImageUrl = "/images/t1.jpg" },
-                        new Product{ Id = 2, Name = "Tablet PGMT 11b", Description = "Super mega giga tablet PGMT 11b", Price = 2234.11M, ImageUrl = "/images/t2.jpg" },
-                        new Product{ Id = 3, Name = "Tablet PGMT 12b", Description = "Super mega giga tablet PGMT 12b", Price = 2500.11M, ImageUrl = "/images/t3.jpg" },
-                     }
-                },
+			  var category = new Category
+			{
+				Id = 1,
+				Name = "Tablets",
+				Products = await GetProducts()
+			};
 
-                new Category { Id = 2, Name = "Phones", Products = new List<Product>
-                    {
-                        new Product{ Id = 4, Name = "MehanoPhone 11a", Description = "Super mega giga MehanoPhone 11a", Price = 1500.11M, ImageUrl = "/images/p1.jpg" },
-                        new Product{ Id = 5, Name = "MehanoPhone 11b", Description = "Super mega giga MehanoPhone 11b", Price = 1600.11M, ImageUrl = "/images/p2.jpg" },
-                        new Product{ Id = 6, Name = "MehanoPhone 12b", Description = "Super mega giga MehanoPhone 12b", Price = 1700.11M, ImageUrl = "/images/p3.jpg" }
-                    }
-                }
-            };
+			categories.Add(category);
 
-            return View(categories);
+			return categories; 
         }
 
-        public IActionResult Details(int? id)
+        public async Task<Category> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var categories = new List<Category>
-            {
 
-                new Category { Id = 1, Name = "Tablets", Products = new List<Product>
-                    {
-                        new Product{ Id = 1, Name = "Tablet PGMT 11a", Description = "Super mega giga tablet PGMT 11a", Price = 2000.11M, ImageUrl = "/images/t1.jpg" },
-                        new Product{ Id = 2, Name = "Tablet PGMT 11b", Description = "Super mega giga tablet PGMT 11b", Price = 2234.11M, ImageUrl = "/images/t2.jpg" },
-                        new Product{ Id = 3, Name = "Tablet PGMT 12b", Description = "Super mega giga tablet PGMT 12b", Price = 2500.11M, ImageUrl = "/images/t3.jpg" },
-                     }
-                }
-            };
+			var category = new Category
+			{
+				Id = 1,
+				Name = "Tablets",
+				Products = await GetProducts()
+			};
 
-            return View(categories);
+			return category;
         }
+
+		public async Task<List<Category>> GetCategories()
+		{
+			var categories = new List<Category>(); // Инициализиране на списък за съхраняване на продуктите.
+
+
+			// Коригирана връзка с MySQL база данни
+			using var connection = new MySqlConnection("Server=localhost;Port=3306;Database=shop;Uid=root;Pwd=;");
+			await connection.OpenAsync();
+
+			// SQL заявка за извличане на всички продукти
+			using var command = new MySqlCommand("SELECT * FROM categories}", connection);
+			using var reader = await command.ExecuteReaderAsync();
+
+			// Четене на данни от резултата на заявката
+			while (await reader.ReadAsync())
+			{
+				var category = new Category
+				{
+					Id = reader.GetInt32(0),           // Съответства на първата колона (Id)
+					Name = reader.GetString(1),        // Съответства на втората колона (Name)
+					Products = await GetProducts()
+				};
+
+				categories.Add(category); // Добавяне на продукта в списъка
+			}
+
+			return categories;
+		}
+
+			public async Task<List<Product>> GetProducts()
+		{
+
+			string id = HttpContext.Request.Query["id"];
+			var products = new List<Product>(); // Инициализиране на списък за съхраняване на продуктите.
+
+
+			// Коригирана връзка с MySQL база данни
+			using var connection = new MySqlConnection("Server=localhost;Port=3306;Database=shop;Uid=root;Pwd=;");
+			await connection.OpenAsync();
+
+			// SQL заявка за извличане на всички продукти
+			using var command = new MySqlCommand($"SELECT * FROM products WHERE CategoryId = {id}", connection);
+			using var reader = await command.ExecuteReaderAsync();
+
+			// Четене на данни от резултата на заявката
+			while (await reader.ReadAsync())
+			{
+				var product = new Product
+				{
+					Id = reader.GetInt32(0),           // Съответства на първата колона (Id)
+					Name = reader.GetString(1),        // Съответства на втората колона (Name)
+					Description = reader.GetString(2), // Съответства на третата колона (Description)
+					Price = reader.GetDecimal(3),      // Съответства на четвъртата колона (Price)
+					ImageUrl = reader.GetString(4),     // Съответства на петата колона (ImageUrl)
+
+				};
+
+				products.Add(product); // Добавяне на продукта в списъка
+			}
+
+			return products;
+		}	
     }
 }
